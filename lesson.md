@@ -383,7 +383,9 @@ it('shows the Sale badge when onSale is true', () => {
 
 ---
 
-### Part A4: Testing an Async Component (25 minutes)
+### Part A4: Testing an Async Component — Optional Self-Study (25 minutes)
+
+> **This section is optional.** If the lesson is running to time, complete it independently after class. The concepts build directly on Part A2 and A3 — async queries and mocking are the only new ideas introduced here.
 
 Most real components do not just render props — they fetch data. Testing these components requires two additional tools: a way to mock `fetch` so the test controls what data comes back, and a way to wait for the DOM to update after the fetch resolves.
 

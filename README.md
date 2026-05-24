@@ -20,11 +20,9 @@ This lesson covers two professional skills that complete the "make it correct, t
 
 | Duration  | What                                          | How or Why                                                                                                                                    |
 | --------- | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| 10 min    | Warm up and recap                             | Recap Lesson 2.8: routing and ProtectedRoute; introduce the lesson theme — make it correct, then make it fast                                |
 | 30 min    | Part A lecture: Testing                       | Slides: why test, types of tests, the testing stack, anatomy of a test, DOM queries with RTL, async testing with vi.spyOn and findByText      |
 | 15 min    | Lab A1: Setup and first unit test             | Scaffold testing-demo with Vite, install and configure Vitest + RTL, write formatPrice utility and its unit tests                            |
 | 20 min    | Lab A2: Component tests                       | Build ProductCard component; write render tests with getByText and queryByText; Activity: test the Sale badge independently                  |
-| 25 min    | Lab A3: Async component tests                 | Build ProductList component; mock fetch with vi.spyOn; write tests for loading state, successful fetch, and error state using findByText      |
 | 5 min     | Break                                         |                                                                                                                                               |
 | 30 min    | Part B lecture: Performance optimisation      | Slides: how React re-renders, the React Profiler, useMemo, React.memo + useCallback as a pair, when not to optimise                          |
 | 15 min    | Lab B1: Build the slow app                    | Scaffold perf-demo with Vite; build App.jsx with isPrime computation, FilterBar with console.log, and NumberList                             |
@@ -32,4 +30,5 @@ This lesson covers two professional skills that complete the "make it correct, t
 | 20 min    | Lab B3: useMemo                               | Wrap the prime computation in useMemo with an empty dependency array; re-record Profiler session; compare render time to baseline            |
 | 25 min    | Lab B4: React.memo and useCallback            | Wrap FilterBar in React.memo; observe it still re-renders; add useCallback to handleFilterChange; confirm FilterBar stops re-rendering; Activity: apply React.memo to NumberList |
 | 5 min     | Wrap up and Q&A                               | Exit ticket questions; common pitfalls recap; preview Lesson 2.10 — custom hooks and React Query                                            |
-| **Total** |                                               | **215 min — allows ~35 min buffer for questions and pacing**                                                                                  |
+| **Total** |                                               | **180 min — 3 hours**                                                                                                                        |
+| *(+25 min)* | *Lab A3 (optional): Async component tests* | *Build ProductList component; mock fetch with vi.spyOn; write tests for loading state, successful fetch, and error state — self-study*       |
