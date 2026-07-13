@@ -1,0 +1,50 @@
+/* src/pages/ProductsPage.module.css */
+.page {
+  max-width: 960px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-4);
+}
+
+.cart {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.hint {
+  color: var(--text-subtle);
+  font-size: var(--text-sm);
+}
+
+.count {
+  color: var(--text-muted);
+  margin-bottom: var(--space-4);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-4);
+}
+
+.card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+}
+
+.card h3 {
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-2);
+}
+
+.price {
+  font-weight: var(--weight-semibold);
+  color: var(--text-strong);
+}

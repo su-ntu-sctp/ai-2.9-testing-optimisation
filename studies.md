@@ -98,6 +98,19 @@ Timebox **1.5–2 hours** across these resources before the lesson. You do not n
 
 ---
 
+## 8. React.lazy and Suspense
+
+**Read (10 min)**
+
+- [React — lazy](https://react.dev/reference/react/lazy): Read through the "Usage" section, especially "Lazy-loading components with Suspense". Note that `lazy` takes a function that returns a dynamic `import()`, not the component itself.
+- [React — Suspense](https://react.dev/reference/react/Suspense): Skim the overview and the "Usage" section. Focus on how `fallback` is shown while the wrapped content is still loading.
+
+**Key idea to take away:** `useMemo`, `React.memo`, and `useCallback` all address wasted work during re-renders, once a component's code is already on the page. `React.lazy` addresses a different cost: the JavaScript for a component is downloaded and parsed before a user ever needs it. Wrapping a route in `lazy()` defers that download until the user actually navigates there, and `Suspense` supplies a fallback (such as a spinner) to show while the download is in progress.
+
+**Quick check:** If `ProductsPage` is loaded with `lazy(() => import('./pages/ProductsPage'))` but is not wrapped in a `<Suspense>` boundary anywhere in its parent tree, what happens when a user navigates to it?
+
+---
+
 ## Reflection (5 min)
 
 Before the lesson, write down answers to these three questions:

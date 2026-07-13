@@ -1,0 +1,46 @@
+body {
+  font-family: sans-serif;
+  margin: 0;
+}
+
+.app {
+  padding: 2rem;
+}
+
+.product-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  padding: 1rem 0;
+}
+
+.product-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem;
+  background: #fff;
+}
+
+.product-card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.price {
+  font-weight: 600;
+  color: #2d3748;
+  margin: 0 0 0.5rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+
+.in-stock  { background: #c6f6d5; color: #276749; }
+.out-of-stock { background: #fed7d7; color: #9b2c2c; }
+.sale      { background: #fefcbf; color: #744210; }

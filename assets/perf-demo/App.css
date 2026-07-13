@@ -1,0 +1,38 @@
+body {
+  font-family: sans-serif;
+  margin: 0;
+}
+
+.app {
+  padding: 2rem;
+}
+
+.counter-section {
+  margin-bottom: 1rem;
+}
+
+.counter-hint {
+  margin-left: 1rem;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.filter-bar {
+  margin-bottom: 1rem;
+}
+
+.filter-bar input {
+  margin-left: 0.5rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.number-list {
+  columns: 6;
+  list-style: none;
+  padding: 0;
+  margin-top: 1rem;
+}
+
+.number-list li {
+  padding: 0.15rem 0;
+}
