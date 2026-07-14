@@ -2,7 +2,7 @@
 
 ## Overview
 
-- **Duration:** ~2 hours (hands-on lab)
+- **Duration:** ~2 hours 20 minutes (hands-on lab, required sections only; leaves room for the ~30 to 40 minute lecture within the 3-hour session). Optional self-study sections (Part A4, Part A5, and the Sale Badge activity) are excluded from this estimate.
 - **Prerequisites:** Lesson 2.8, Routing and Navigation with React Router
 
 ## Learning Objectives
@@ -29,7 +29,7 @@ You will build a small product catalogue app and write three levels of tests for
 
 ---
 
-### Part A1: Project Setup (15 minutes)
+### Part A1: Project Setup (10 minutes)
 
 #### Scaffold the App
 
@@ -193,7 +193,7 @@ export default App;
 
 ---
 
-### Part A2: Your First Unit Test (15 minutes)
+### Part A2: Your First Unit Test (10 minutes)
 
 Before introducing React Testing Library, you will write a test for a plain JavaScript function. This is the purest form of a unit test: no DOM, no React, no components.
 
@@ -273,7 +273,7 @@ With Vitest still running, change `'$10.00'` to `'$10'` in the first assertion a
 
 ---
 
-### Part A3: Testing a React Component (25 minutes)
+### Part A3: Testing a React Component (20 minutes)
 
 You will now introduce React Testing Library to test a component. RTL renders a component into the virtual DOM provided by jsdom and gives you `screen`, a set of query functions for finding elements by their visible content and role.
 
@@ -371,7 +371,9 @@ All five tests should pass.
 
 ---
 
-### Activity: Test the Sale Badge (10 minutes)
+### Activity: Test the Sale Badge, Optional Self-Study (10 minutes)
+
+> **This section is optional.** If the lesson is running to time, complete it independently after class. It applies the same `getByText` and `toBeInTheDocument` pattern already demonstrated for the In Stock badge; no new concept is introduced.
 
 The test suite for `ProductCard` currently verifies that the Sale badge is absent when `onSale` is `false`. It does not verify that the badge appears when `onSale` is `true`.
 
@@ -398,7 +400,7 @@ it("shows the Sale badge when onSale is true", () => {
 
 ---
 
-### Part A4: Testing an Async Component, Optional Self-Study (25 minutes)
+### Part A4: Testing an Async Component, Optional Self-Study (20 minutes)
 
 > **This section is optional.** If the lesson is running to time, complete it independently after class. The concepts build directly on Part A2 and A3: async queries and mocking are the only new ideas introduced here.
 
@@ -547,7 +549,7 @@ You should see a total of ten passing tests across three files.
 
 ---
 
-### Part A5: Apply It to the CRM, Optional Self-Study (35 minutes)
+### Part A5: Apply It to the CRM, Optional Self-Study (30 minutes)
 
 > **This section is optional.** If the lesson is running to time, complete it independently after class. No new testing concepts are introduced in the unit and component tests below; they confirm that the patterns from Part A2 and A3 apply directly to the CRM project you have been building since Lesson 2.2. The integration test at the end introduces one new idea: rendering a component together with the Context provider and router it depends on.
 
@@ -634,24 +636,31 @@ import { customerReducer, initialState } from "./customerReducer";
 
 describe("customerReducer", () => {
   it("sets loading to true and clears the error on FETCH_START", () => {
+    // Arrange: start from a state that already has an error set
     const startState = { ...initialState, error: "Previous error" };
+    // Act: dispatch FETCH_START through the reducer directly - no component involved
     const result = customerReducer(startState, { type: "FETCH_START" });
+    // Assert: loading flips on and the old error is cleared
     expect(result.loading).toBe(true);
     expect(result.error).toBe(null);
   });
 
   it("stores the fetched customers and stops loading on FETCH_SUCCESS", () => {
+    // Arrange: start from a state mid-fetch (loading: true)
     const loadingState = { ...initialState, loading: true };
     const customers = [{ id: 1, firstName: "Ada", lastName: "Lovelace" }];
+    // Act: dispatch FETCH_SUCCESS with the fetched customers as the payload
     const result = customerReducer(loadingState, {
       type: "FETCH_SUCCESS",
       payload: customers,
     });
+    // Assert: loading turns off and the customers are stored in state
     expect(result.loading).toBe(false);
     expect(result.customers).toEqual(customers);
   });
 
   it("removes the matching customer on DELETE_CUSTOMER", () => {
+    // Arrange: start with two customers already in state
     const startState = {
       ...initialState,
       customers: [
@@ -659,17 +668,21 @@ describe("customerReducer", () => {
         { id: 2, firstName: "Alan", lastName: "Turing" },
       ],
     };
+    // Act: dispatch DELETE_CUSTOMER for id 1
     const result = customerReducer(startState, {
       type: "DELETE_CUSTOMER",
       payload: 1,
     });
+    // Assert: only the customer with id 2 remains
     expect(result.customers).toEqual([
       { id: 2, firstName: "Alan", lastName: "Turing" },
     ]);
   });
 
   it("returns the existing state for an unknown action type", () => {
+    // Act: dispatch a type the reducer has no case for
     const result = customerReducer(initialState, { type: "UNKNOWN" });
+    // Assert: the exact same state object is returned unchanged
     expect(result).toBe(initialState);
   });
 });
@@ -690,19 +703,26 @@ import SearchBar from "./SearchBar";
 
 describe("SearchBar", () => {
   it("renders the current searchTerm as the input value", () => {
+    // Arrange + Act: render with searchTerm already set to "Ada";
+    // setSearchTerm is unused in this test, so a no-op function is enough
     render(<SearchBar searchTerm="Ada" setSearchTerm={() => {}} />);
+    // Assert: the input's value reflects the searchTerm prop
     expect(
       screen.getByPlaceholderText("Search by name or email..."),
     ).toHaveValue("Ada");
   });
 
   it("calls setSearchTerm with the new value when the user types", () => {
+    // Arrange: a mock function so the test can inspect how it was called
     const setSearchTerm = vi.fn();
     render(<SearchBar searchTerm="" setSearchTerm={setSearchTerm} />);
 
+    // Act: simulate typing "Turing" into the input
     const input = screen.getByPlaceholderText("Search by name or email...");
     fireEvent.change(input, { target: { value: "Turing" } });
 
+    // Assert: SearchBar called setSearchTerm with the new text,
+    // not whether the input's value changed on screen (it doesn't own that state)
     expect(setSearchTerm).toHaveBeenCalledWith("Turing");
   });
 });
@@ -733,6 +753,7 @@ import { MemoryRouter, Routes, Route } from "react-router";
 import { CustomerContext } from "../contexts/CustomerContext";
 import CustomersPage from "./CustomersPage";
 
+// Fixture data shaped like real customer records from the API
 const mockCustomers = [
   {
     id: "1",
@@ -754,6 +775,8 @@ const mockCustomers = [
   },
 ];
 
+// Stands in for CustomerProvider - a plain object with the exact shape
+// CustomersPage destructures from useContext(CustomerContext)
 const mockContextValue = {
   filteredCustomers: mockCustomers,
   loading: false,
@@ -766,11 +789,14 @@ const mockContextValue = {
 
 describe("CustomersPage", () => {
   it("renders a card for each filtered customer", () => {
+    // Arrange + Act: render CustomersPage wrapped in both a mock Context
+    // provider and a MemoryRouter - both are required for it to render at all
     render(
       <CustomerContext.Provider value={mockContextValue}>
         <MemoryRouter initialEntries={["/app/customers"]}>
           <Routes>
             <Route path="/app/customers" element={<CustomersPage />} />
+            {/* Placeholder route - only its existence matters, not its content */}
             <Route
               path="/app/customers/:id"
               element={<div>Customer Detail Page</div>}
@@ -780,11 +806,14 @@ describe("CustomersPage", () => {
       </CustomerContext.Provider>,
     );
 
+    // Assert: both mock customers appear on screen
     expect(screen.getByText("Ada Lovelace")).toBeInTheDocument();
     expect(screen.getByText("Grace Hopper")).toBeInTheDocument();
   });
 
   it("navigates to the customer detail page when a card is selected", async () => {
+    // Arrange: userEvent simulates real user interaction more faithfully
+    // than fireEvent (it fires the full sequence of events a click causes)
     const user = userEvent.setup();
 
     render(
@@ -801,8 +830,11 @@ describe("CustomersPage", () => {
       </CustomerContext.Provider>,
     );
 
+    // Act: click Ada's card - the click bubbles up to CustomerCard's onClick,
+    // which calls navigate() to move to the detail route
     await user.click(screen.getByText("Ada Lovelace"));
 
+    // Assert: wait for the router to swap in the placeholder detail route
     expect(await screen.findByText("Customer Detail Page")).toBeInTheDocument();
   });
 });
@@ -892,10 +924,10 @@ const products = Array.from({ length: 1000 }, (_, i) => {
   };
 });
 
-const fileContents = `// src/mockProductData.js\nexport const mockProducts = ${JSON.stringify(products, null, 2)};\n`;
+const fileContents = `// data/products.js\nexport const mockProducts = ${JSON.stringify(products, null, 2)};\n`;
 
-writeFileSync("src/mockProductData.js", fileContents);
-console.log(`Generated ${products.length} products to src/mockProductData.js`);
+writeFileSync("data/products.js", fileContents);
+console.log(`Generated ${products.length} products to data/products.js`);
 ```
 
 Run it once:
@@ -904,14 +936,14 @@ Run it once:
 node scripts/generate-products.js
 ```
 
-This writes `src/mockProductData.js`, a plain JavaScript file exporting an array of 1,000 product objects. Open it briefly to confirm it looks reasonable, then leave it alone; you will import it like any other module. There is no `fetch`, no loading state, and no API involved for this page; the data is bundled directly into the app. This keeps the lesson focused purely on render performance, since data fetching was already covered in Lesson 2.5.
+This writes `data/products.js`, a plain JavaScript file exporting an array of 1,000 product objects, alongside the existing `data/db.json`. Open it briefly to confirm it looks reasonable, then leave it alone; you will import it like any other module. There is no `fetch`, no loading state, and no API involved for this page; the data is bundled directly into the app. This keeps the lesson focused purely on render performance, since data fetching was already covered in Lesson 2.5.
 
 > **Why generate the data with a script instead of a library?**
 > Tools such as Mockaroo or Faker are the normal way to generate realistic mock data on a real project, and you are welcome to use either instead of the script above. The script is provided so the lesson does not depend on an external service or an extra dependency; the only requirement is 1,000 plausible product records with an `id`, `name`, `category`, `price`, and `inStock` field.
 
 ---
 
-### Part B2: Build the Slow Products Page (20 minutes)
+### Part B2: Build the Slow Products Page (15 minutes)
 
 #### Create the Page Component
 
@@ -920,24 +952,31 @@ Create `src/pages/ProductsPage.jsx`:
 ```jsx
 // src/pages/ProductsPage.jsx
 import { useState } from "react";
-import { mockProducts } from "../mockProductData";
-import ProductFilterBar from "../components/ProductFilterBar";
+import { mockProducts } from "../../data/products.js";
+import ProductSearchBar from "../components/ProductSearchBar";
 import ProductList from "../components/ProductList";
 import styles from "./ProductsPage.module.css";
 
+function applyDiscount(product) {
+  const discount = (product.id % 7) / 20; // deterministic fake discount, 0-30%
+  return {
+    ...product,
+    discountedPrice: Number((product.price * (1 - discount)).toFixed(2)),
+  };
+}
+
 function ProductsPage() {
-  const [category, setCategory] = useState("All");
+  const [search, setSearch] = useState("");
   const [cartCount, setCartCount] = useState(0);
 
-  const handleCategoryChange = (value) => {
-    setCategory(value);
+  const handleSearchChange = (value) => {
+    setSearch(value);
   };
 
   // This computation runs on every render, even when cartCount changes
-  const filtered =
-    category === "All"
-      ? mockProducts
-      : mockProducts.filter((p) => p.category === category);
+  const filteredProducts = mockProducts
+    .filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
+    .map(applyDiscount);
 
   return (
     <div className={styles.page}>
@@ -956,11 +995,11 @@ function ProductsPage() {
         </div>
       </div>
 
-      <ProductFilterBar value={category} onChange={handleCategoryChange} />
+      <ProductSearchBar value={search} onChange={handleSearchChange} />
       <p className={styles.count}>
-        Showing <strong>{filtered.length}</strong> products
+        Showing <strong>{filteredProducts.length}</strong> products
       </p>
-      <ProductList products={filtered} />
+      <ProductList products={filteredProducts} />
     </div>
   );
 }
@@ -968,49 +1007,38 @@ function ProductsPage() {
 export default ProductsPage;
 ```
 
-The `cartCount` state plays the same role as the counter in a typical performance demo: a piece of state that has nothing to do with the product list, but that still triggers a full re-render of `ProductsPage` and everything inside it. The key detail is that `mockProducts.filter(...)` runs on every render, including when `cartCount` changes.
+The `cartCount` state plays the same role as the counter in a typical performance demo: a piece of state that has nothing to do with the product list, but that still triggers a full re-render of `ProductsPage` and everything inside it. Unlike a dropdown filter with an "All" option, an empty search string still matches every product, so `filteredProducts` is recomputed with a real `.filter()` and `.map()` pass on every render, including when `cartCount` changes, regardless of what is typed in the search box.
+
+`applyDiscount` is intentionally realistic rather than artificially slow: it is the kind of per-item calculation you would actually find in a product listing. Later in this section you will use the Profiler to see exactly how much this pipeline costs, and where the real cost in this page actually lives.
 
 Create `src/pages/ProductsPage.module.css` with the contents of the file provided: [assets/testing-demo/ProductsPage.module.css](assets/testing-demo/ProductsPage.module.css).
 
 #### Create the Child Components
 
-Create `src/components/ProductFilterBar.jsx`:
+Create `src/components/ProductSearchBar.jsx`:
 
 ```jsx
-// src/components/ProductFilterBar.jsx
-const CATEGORIES = [
-  "All",
-  "Electronics",
-  "Office",
-  "Furniture",
-  "Stationery",
-  "Kitchen",
-];
-
-function ProductFilterBar({ value, onChange }) {
-  console.log("ProductFilterBar rendered");
+// src/components/ProductSearchBar.jsx
+function ProductSearchBar({ value, onChange }) {
+  console.log("ProductSearchBar rendered");
   return (
     <div>
-      <label htmlFor="category">Category: </label>
-      <select
-        id="category"
+      <label htmlFor="search">Search by name: </label>
+      <input
+        id="search"
+        type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-      >
-        {CATEGORIES.map((c) => (
-          <option key={c} value={c}>
-            {c}
-          </option>
-        ))}
-      </select>
+        placeholder="e.g. Wireless Mouse"
+      />
     </div>
   );
 }
 
-export default ProductFilterBar;
+export default ProductSearchBar;
 ```
 
-The `console.log` is intentional, the same technique used to observe re-renders in earlier lessons. You will watch the browser console to confirm when `ProductFilterBar` re-renders, and later confirm it stops re-rendering unnecessarily once the fix is applied.
+The `console.log` is intentional, the same technique used to observe re-renders in earlier lessons. You will watch the browser console to confirm when `ProductSearchBar` re-renders, and later confirm it stops re-rendering unnecessarily once the fix is applied.
 
 Create `src/components/ProductList.jsx`:
 
@@ -1024,7 +1052,10 @@ function ProductList({ products }) {
       {products.map((product) => (
         <div className={styles.card} key={product.id}>
           <h3>{product.name}</h3>
-          <p className={styles.price}>${product.price.toFixed(2)}</p>
+          <div className={styles.priceRow}>
+            <span className={styles.price}>${product.discountedPrice.toFixed(2)}</span>
+            <span className={styles.originalPrice}>${product.price.toFixed(2)}</span>
+          </div>
           <span>{product.inStock ? "In Stock" : "Out of Stock"}</span>
         </div>
       ))}
@@ -1060,9 +1091,9 @@ import { Package } from "lucide-react";
 </NavLink>;
 ```
 
-Click **Products** in the sidebar. You should see a grid of 1,000 product cards. Click **Add Random Item** a few times. You should notice a small but perceptible delay on each click, even though the cart count has nothing to do with the product list. This is the performance problem you are about to fix.
+Click **Products** in the sidebar. You should see a grid of 1,000 product cards. Click **Add Random Item** once, without typing anything in the search box. You should notice a small but perceptible delay, even though the cart count has nothing to do with the product list. This is the performance problem you are about to investigate.
 
-Open the browser console and observe that `"ProductFilterBar rendered"` is logged every time you click Add Random Item. `ProductFilterBar` is re-rendering on every cart update, even though its `value` prop has not changed.
+Open the browser console and observe that `"ProductSearchBar rendered"` is logged every time you click Add Random Item. `ProductSearchBar` is re-rendering on every cart update, even though its `value` prop has not changed.
 
 ---
 
@@ -1073,46 +1104,71 @@ Install React Developer Tools in your browser if you have not already (Chrome We
 Open DevTools and navigate to the **Profiler** tab.
 
 1. Click **Start profiling** (the circle icon)
-2. Click **Add Random Item** three or four times
+2. Click **Add Random Item** once
 3. Click **Stop profiling**
 
-You will see a flame graph. Each bar represents a component render. Click on the `ProductsPage` bar to see its render duration. On most machines you will see something above 30ms, well above the 16ms budget for a smooth 60fps animation.
+You will see a flame graph. Each bar represents a component render for that commit, bar width is render time and bar colour indicates relative cost, from grey (fast) through yellow to orange (slow). Click through the bars and compare their durations. You should see something like this:
 
-The flame graph tells you `ProductsPage` is slow. Now look at the source: `mockProducts.filter(...)` runs across all 1,000 products every time `ProductsPage` renders. Clicking Add Random Item triggers a re-render, which re-runs the filter, even though the category has not changed.
+```
+ProductsPage      3ms of 201.3ms
+  ProductSearchBar   0.7ms of 0.7ms
+  ProductList        189ms of 197.6ms
+```
 
-> **Why 16ms?**
-> A screen refreshes at 60 frames per second. Each frame has a budget of 1000ms / 60 = ~16ms. If a render takes longer than 16ms, the browser cannot paint the next frame in time, and the UI appears to stutter. The Profiler highlights renders that exceed this threshold.
+Each bar is labelled `X ms of Y ms`:
+
+- `X` is that component's own render time, just that component's function running, none of its children included
+- `Y` is the subtree total, that component plus everything rendered inside it
+- `ProductsPage 3ms of 201.3ms`: its own code (the `.filter()` and `.map()` pipeline) cost 3ms, but the whole branch beneath it, `ProductSearchBar` and `ProductList` included, totalled 201.3ms
+- `ProductList 189ms of 197.6ms`: its own function call cost 189ms; the remaining 8.6ms is the work of creating and diffing the plain `div`, `h3`, and `span` elements for all 1,000 cards. Plain HTML elements are not separate named components, so they never get their own bar, but reconciling that many of them is still real work, and it still counts toward the subtree total
+- `ProductSearchBar 0.7ms of 0.7ms`: `X` and `Y` are the same number here because it renders only a handful of plain elements (a `div`, a `label`, an `input`), so their reconciliation cost rounds to close to nothing at this scale, unlike `ProductList`'s 1,000 repeated cards
+
+This is the important, and slightly surprising, result: `ProductsPage` itself, where the `.filter()` and `.map()` pipeline runs, is fast, only 3ms of its own. The `filteredProducts` computation touches every product once, which is real work but not much of it at 1,000 items. Almost all of the render time is spent inside `ProductList`, creating and diffing hundreds of card elements, 189ms on its own. A screen redraws about 60 times per second, so each interaction has roughly 16ms to stay smooth; this click is more than ten times over that, but the bar you would naturally suspect, the filtering logic, is not the one responsible.
+
+> **Flamegraph vs Ranked**
+> `ProductSearchBar`'s bar in the Flamegraph can be thin enough, well under 1ms next to `ProductList`'s 189ms, that it is easy to miss entirely at normal zoom. The Flamegraph shows every component in the tree for that commit, positioned by parent and child, so a fast render is still there, just visually tiny. Switch to the **Ranked** chart, next to Flamegraph at the top of the Profiler panel, to see the same commit as a sorted list instead: only the components that actually rendered, ordered from slowest to fastest, each given a full-width row regardless of how small its render time is. When you need to confirm whether a specific component rendered at all, Ranked is the more reliable view; use Flamegraph to see the parent-child structure and Ranked to read exact numbers for small renders.
+
+> **Always profile before you optimise**
+> It would have been easy to assume the `.filter().map()` pipeline was the bottleneck and reach straight for `useMemo`, since that is the obvious-looking cost in the code. The Profiler shows that it is not: at 1,000 items, `filteredProducts` is cheap to recompute, and `ProductList`'s render is what actually costs time. This is the entire reason to profile before optimising: the code that looks expensive and the code that measures as expensive are not always the same code.
 
 ---
 
-### Part B4: Fixing the Expensive Computation with `useMemo` (20 minutes)
+### Part B4: Removing Pure Waste with `useMemo` (10 minutes)
 
-`useMemo` tells React: "only recompute this value when these dependencies change." Because `filtered` depends only on `category` (and the unchanging `mockProducts` array), it can be recomputed only when `category` actually changes.
+Even though `filteredProducts` is not the dominant cost, recomputing it on every render, including renders triggered by `cartCount`, that have nothing to do with the product list, is still pure waste. `useMemo` tells React: "only recompute this value when these dependencies change." Because `filteredProducts` depends only on `search` (and the unchanging `mockProducts` array), it can be recomputed only when `search` actually changes.
 
-Update `src/pages/ProductsPage.jsx`, add the `useMemo` import and wrap the filter:
+Update `src/pages/ProductsPage.jsx`, add the `useMemo` import and wrap the pipeline:
 
 ```jsx
 // src/pages/ProductsPage.jsx
 import { useState, useMemo } from "react";
-import { mockProducts } from "../mockProductData";
-import ProductFilterBar from "../components/ProductFilterBar";
+import { mockProducts } from "../../data/products.js";
+import ProductSearchBar from "../components/ProductSearchBar";
 import ProductList from "../components/ProductList";
 import styles from "./ProductsPage.module.css";
 
+function applyDiscount(product) {
+  const discount = (product.id % 7) / 20;
+  return {
+    ...product,
+    discountedPrice: Number((product.price * (1 - discount)).toFixed(2)),
+  };
+}
+
 function ProductsPage() {
-  const [category, setCategory] = useState("All");
+  const [search, setSearch] = useState("");
   const [cartCount, setCartCount] = useState(0);
 
-  const handleCategoryChange = (value) => {
-    setCategory(value);
+  const handleSearchChange = (value) => {
+    setSearch(value);
   };
 
-  // useMemo: only recompute when category changes
-  const filtered = useMemo(() => {
-    return category === "All"
-      ? mockProducts
-      : mockProducts.filter((p) => p.category === category);
-  }, [category]);
+  // useMemo: only recompute when search changes
+  const filteredProducts = useMemo(() => {
+    return mockProducts
+      .filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
+      .map(applyDiscount);
+  }, [search]);
 
   return (
     <div className={styles.page}>
@@ -1131,11 +1187,11 @@ function ProductsPage() {
         </div>
       </div>
 
-      <ProductFilterBar value={category} onChange={handleCategoryChange} />
+      <ProductSearchBar value={search} onChange={handleSearchChange} />
       <p className={styles.count}>
-        Showing <strong>{filtered.length}</strong> products
+        Showing <strong>{filteredProducts.length}</strong> products
       </p>
-      <ProductList products={filtered} />
+      <ProductList products={filteredProducts} />
     </div>
   );
 }
@@ -1143,73 +1199,71 @@ function ProductsPage() {
 export default ProductsPage;
 ```
 
-Click **Add Random Item** again. The delay should be gone. Open the Profiler, record another session, and compare the `ProductsPage` render time to the previous recording.
+Open the Profiler, record another session, and click Add Random Item once. Compare the `ProductsPage` bar to your original baseline: it should be smaller, since the filter and discount pipeline is no longer repeated. On a typical machine this might look like `ProductsPage` dropping from around 2-3ms to around 1-1.5ms, a real, measurable improvement in its own self time.
+
+But look at the total commit time for the same recording: it has barely moved, still well above the 16ms budget. `ProductList` is still by far the largest bar, unaffected by this change, and it accounts for nearly all of the total. `useMemo` removed real waste from `ProductsPage` itself, it just was not the waste responsible for the delay you feel when clicking Add Random Item. A component's own render time and a page's total commit time are different numbers, and it is the total that determines whether the click feels slow.
 
 > **The dependency array controls when `useMemo` recomputes**
 >
 > - `[]`: compute once on mount, never again
-> - `[category]`: recompute whenever `category` changes
+> - `[search]`: recompute whenever `search` changes
 > - `[a, b]`: recompute whenever `a` or `b` changes
 >
 > An incorrect dependency array is the most common `useMemo` mistake. If you omit a value the computation depends on, you get stale results. If you include values that do not affect the result, you negate the benefit of caching.
 
+> **When is `useMemo` worth it on its own?**
+> At 1,000 items, skipping the filter and discount pipeline saves a small, hard-to-see amount of time. At 10,000 or 100,000 items, the same computation becomes expensive enough to show up in the Profiler on its own, independent of anything else on the page. Bonus Challenge 4 asks you to test this directly.
+
 ---
 
-### Part B5: Preventing Unnecessary Child Re-renders (25 minutes)
+### Part B5: Fixing the Real Bottleneck: Unnecessary Child Re-renders (20 minutes)
 
-Even after the `useMemo` fix, `ProductFilterBar` still re-renders every time the cart count changes. Open the console and click Add Random Item, you will still see `"ProductFilterBar rendered"` logged on every click.
+The Profiler pointed at `ProductList` as the dominant cost, not the filter pipeline. `ProductList` receives a `products` prop and has no re-render protection of its own, so every time `ProductsPage` re-renders, for any reason, `ProductList` re-renders too and rebuilds hundreds of card elements from scratch.
 
-The reason: `handleCategoryChange` is defined inside `ProductsPage`. Every time `ProductsPage` re-renders, a brand-new function object is created. Even though the function body is identical, it is a different reference. `ProductFilterBar` receives a new `onChange` prop on every render, so it re-renders even though nothing visible has changed.
+Before fixing `ProductList` directly (that is the Activity at the end of this section), work through the same fix on a smaller, cheaper component first: `ProductSearchBar`. Worth being upfront about why: `ProductSearchBar` renders in well under 1ms, so fixing its unnecessary re-render will not make a measurable dent in the 200ms+ total, `ProductList` is still where nearly all of that time goes. `ProductSearchBar` is the better one to learn the mechanism on precisely because it is small and easy to reason about, and because it receives a function prop (`onChange`), which is exactly the case where `React.memo` on its own is not enough. `ProductList` does not receive a function prop, so it cannot demonstrate that part. Once the pattern is familiar here, applying it to `ProductList` in the Activity is genuine practice, not a first encounter with something new, and that is where the actual performance win lands.
 
-#### Step 1: Wrap ProductFilterBar in `React.memo`
+Open the console and click Add Random Item, you will still see `"ProductSearchBar rendered"` logged on every click.
+
+The reason: `handleSearchChange` is defined inside `ProductsPage`. Every time `ProductsPage` re-renders, a brand-new function object is created. Even though the function body is identical, it is a different reference. `ProductSearchBar` receives a new `onChange` prop on every render, so it re-renders even though nothing visible has changed.
+
+#### Step 1: Wrap ProductSearchBar in `React.memo`
 
 `React.memo` is a higher-order component that tells React to skip re-rendering a component if its props have not changed (by reference).
 
-Update `src/components/ProductFilterBar.jsx`:
+Update `src/components/ProductSearchBar.jsx`:
 
 ```jsx
-// src/components/ProductFilterBar.jsx
+// src/components/ProductSearchBar.jsx
 import { memo } from "react";
 
-const CATEGORIES = [
-  "All",
-  "Electronics",
-  "Office",
-  "Furniture",
-  "Stationery",
-  "Kitchen",
-];
-
-const ProductFilterBar = memo(function ProductFilterBar({ value, onChange }) {
-  console.log("ProductFilterBar rendered");
+function ProductSearchBar({ value, onChange }) {
+  console.log("ProductSearchBar rendered");
   return (
     <div>
-      <label htmlFor="category">Category: </label>
-      <select
-        id="category"
+      <label htmlFor="search">Search by name: </label>
+      <input
+        id="search"
+        type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-      >
-        {CATEGORIES.map((c) => (
-          <option key={c} value={c}>
-            {c}
-          </option>
-        ))}
-      </select>
+        placeholder="e.g. Wireless Mouse"
+      />
     </div>
   );
-});
+}
 
-export default ProductFilterBar;
+export default memo(ProductSearchBar);
 ```
 
-Click Add Random Item again. `ProductFilterBar` still re-renders. This is the key observation: `React.memo` compares props by reference. The `onChange` prop is a new function object on every render, so the comparison always fails and the component always re-renders.
+`ProductSearchBar` itself stays a plain function declaration; `memo` is applied only at the export line, wrapping the component on its way out. This keeps the component definition itself unchanged and the memoization visible in one place.
+
+Click Add Random Item again. `ProductSearchBar` still re-renders. This is the key observation: `React.memo` compares props by reference. The `onChange` prop is a new function object on every render, so the comparison always fails and the component always re-renders.
 
 #### Step 2: Stabilise the Callback with `useCallback`
 
 `useCallback` memoizes a function so the same function object is returned across renders, as long as its dependencies have not changed.
 
-Update `src/pages/ProductsPage.jsx`, add `useCallback` to the import and wrap `handleCategoryChange`:
+Update `src/pages/ProductsPage.jsx`, add `useCallback` to the import and wrap `handleSearchChange`:
 
 ```jsx
 // src/pages/ProductsPage.jsx
@@ -1218,39 +1272,35 @@ import { useState, useMemo, useCallback } from "react";
 // ...inside ProductsPage
 
 // useCallback: stable function reference across renders
-const handleCategoryChange = useCallback((value) => {
-  setCategory(value);
-}, []); // no dependencies, setCategory is stable from useState
+const handleSearchChange = useCallback((value) => {
+  setSearch(value);
+}, []); // no dependencies, setSearch is stable from useState
 ```
 
-Click Add Random Item now. The `"ProductFilterBar rendered"` log no longer appears. `ProductFilterBar` only re-renders when you change the category filter, which is the only time it actually needs to.
+Click Add Random Item now. The `"ProductSearchBar rendered"` log no longer appears. `ProductSearchBar` only re-renders when you change the search input, which is the only time it actually needs to.
 
 > **Why do `React.memo` and `useCallback` have to be used together?**
 >
-> `React.memo` compares props by reference. For primitive values (strings, numbers, booleans), this comparison works automatically, `"Electronics" === "Electronics"` is true. For functions, every `() => {}` expression creates a new object, so two identical functions are different references. `useCallback` is what makes a function's reference stable across renders, so `React.memo`'s comparison can succeed.
+> `React.memo` compares props by reference. For primitive values (strings, numbers, booleans), this comparison works automatically, `"mouse" === "mouse"` is true. For functions, every `() => {}` expression creates a new object, so two identical functions are different references. `useCallback` is what makes a function's reference stable across renders, so `React.memo`'s comparison can succeed.
 
 #### Verify with the Profiler
 
-Record one final Profiler session:
-
-1. Click **Add Random Item** three times, `ProductsPage` re-renders but `ProductFilterBar` should not appear in the flame graph
-2. Change the category filter, both `ProductsPage` and `ProductFilterBar` should re-render (correct behaviour)
-
-Compare this recording to your original baseline. The render time for the Add Random Item action should now be near zero.
+Record one more Profiler session and click Add Random Item once. `ProductSearchBar` should now appear as a greyed-out bar in the Flamegraph rather than a coloured one: React skipped rendering it entirely, so it contributed no time to this commit, but the bar is still shown, dimmed, to preserve the tree's shape. This is a different reason than Part B3, where `ProductSearchBar` rendered but was too fast to notice; here it did not render at all. `ProductList` will still appear in colour, its own re-render protection has not been added yet, that is next.
 
 ---
 
-### Activity: Observe ProductList Re-renders (10 minutes)
+### Activity: Fix ProductList, the Actual Bottleneck (15 minutes)
 
-`ProductList` currently has no re-render protection. When you change the category filter, `filtered` changes and `ProductList` must re-render, that is correct. But when you click Add Random Item, `filtered` does not change, yet `ProductList` still re-renders because its parent does.
+`ProductList` is where nearly all of the render time in this page has been going, as you saw back in Part B3's Profiler recording. It currently has no re-render protection at all. When the search term changes, `filteredProducts` changes and `ProductList` must re-render, that is correct and unavoidable. But when you click Add Random Item, `filteredProducts` does not change (`useMemo` already guarantees the same array reference), yet `ProductList` still re-renders because its parent does, and that re-render is the expensive one.
 
 **Task:** Wrap `ProductList` in `React.memo` so it skips re-rendering when its `products` prop has not changed.
 
 **Hints:**
 
-1. Import `memo` from React and wrap the component the same way you wrapped `ProductFilterBar`
+1. Import `memo` from React and wrap the component the same way you wrapped `ProductSearchBar`
 2. Add a `console.log('ProductList rendered')` inside the component body so you can verify the change works
-3. After applying `React.memo`, click Add Random Item several times and confirm the log does not appear, then change the category filter and confirm it does
+3. After applying `React.memo`, click Add Random Item once and confirm the log does not appear, then change the search input and confirm it does
+4. Record a final Profiler session: clicking Add Random Item should now be fast, since none of `ProductsPage`'s three children need to redo any real work
 
 <details>
 <summary>Reference solution</summary>
@@ -1260,27 +1310,32 @@ Compare this recording to your original baseline. The render time for the Add Ra
 import { memo } from "react";
 import styles from "../pages/ProductsPage.module.css";
 
-const ProductList = memo(function ProductList({ products }) {
+function ProductList({ products }) {
   console.log("ProductList rendered");
   return (
     <div className={styles.grid}>
       {products.map((product) => (
         <div className={styles.card} key={product.id}>
           <h3>{product.name}</h3>
-          <p className={styles.price}>${product.price.toFixed(2)}</p>
+          <div className={styles.priceRow}>
+            <span className={styles.price}>${product.discountedPrice.toFixed(2)}</span>
+            <span className={styles.originalPrice}>${product.price.toFixed(2)}</span>
+          </div>
           <span>{product.inStock ? "In Stock" : "Out of Stock"}</span>
         </div>
       ))}
     </div>
   );
-});
+}
 
-export default ProductList;
+export default memo(ProductList);
 ```
 
-After this change, clicking Add Random Item logs nothing to the console (neither `ProductFilterBar` nor `ProductList` re-renders). Changing the category filter logs `"ProductFilterBar rendered"` and `"ProductList rendered"`, both are correct because their props changed.
+After this change, clicking Add Random Item logs nothing to the console (neither `ProductSearchBar` nor `ProductList` re-renders), and the Profiler should show the Add Random Item commit dropping from 200ms+ down to near zero. Changing the search input logs `"ProductSearchBar rendered"` and `"ProductList rendered"`, both are correct because their props changed.
 
-Note that `ProductList` does not need a corresponding `useCallback` fix because it does not receive a function prop from `ProductsPage`. `React.memo` alone is sufficient here because the `products` array reference only changes when `category` changes (since `filtered` is produced by `useMemo` with `[category]` as its dependency).
+Note that `ProductList` does not need a corresponding `useCallback` fix because it does not receive a function prop from `ProductsPage`. `React.memo` alone is sufficient here, but only because of a decision already made in Part B4: `filteredProducts` is wrapped in `useMemo` with `[search]` as its dependency, so its array reference only changes when `search` actually changes. If that `useMemo` were removed, `filteredProducts` would be a new array on every render of `ProductsPage`, cartCount clicks included, and `React.memo` on `ProductList` would fail exactly the way `ProductSearchBar` failed in Step 1 before `useCallback` was added: the reference would be different every time, so the shallow prop comparison would never pass, and `ProductList` would keep re-rendering regardless of the `memo` wrapper. `React.memo` on a component only pays off if whatever produces its props is already giving it a stable reference to compare against, it is B4's `useMemo` doing that job here, not something `ProductList` or arrays get automatically.
+
+This is the real payoff of the section: `useMemo` in Part B4 removed a small, genuine waste, but `React.memo` on `ProductList` is what actually fixes the delay you felt when clicking Add Random Item back in Part B2. Both were worth doing. Only one of them was the headline fix, and the Profiler, not intuition, is what told you which.
 
 </details>
 
@@ -1292,15 +1347,9 @@ Note that `ProductList` does not need a corresponding `useCallback` fix because 
 
 `React.lazy` defers loading a component's code until it is actually needed. Combined with route-based code splitting, this means a user who only ever visits the Dashboard never downloads the Products page at all.
 
-#### Check the Current Bundle
+#### Check the Current Network Requests
 
-Build the app and observe the output:
-
-```bash
-npm run build
-```
-
-Vite prints a summary of the generated files. Because every page is imported directly in `App.jsx`, they are all bundled into the same JavaScript file that loads on the very first visit, including the 1,000 mock products.
+With `npm run dev` still running, open DevTools → Network, reload the app, and log in to land on the Dashboard. Look through the list of loaded files: `ProductsPage.jsx` and its imports, including `data/products.js`, are already there, even though you never visited the Products page. Because every page is imported directly in `App.jsx`, Vite serves them all as soon as the app starts, whether a given page is ever visited or not.
 
 #### Apply `React.lazy` and `Suspense`
 
@@ -1365,17 +1414,11 @@ function App() {
 export default App;
 ```
 
-`lazy(() => import("./pages/ProductsPage"))` tells the bundler to split `ProductsPage` and everything it imports, including `mockProductData.js`, into a separate file that is only requested over the network when a user navigates to `/app/products`. `Suspense` catches the moment while that file is downloading and renders `fallback` (the same `Spinner` already used elsewhere in the app) until the component is ready.
+`lazy(() => import("./pages/ProductsPage"))` tells the bundler to split `ProductsPage` and everything it imports, including `data/products.js`, into a separate file that is only requested over the network when a user navigates to `/app/products`. `Suspense` catches the moment while that file is downloading and renders `fallback` (the same `Spinner` already used elsewhere in the app) until the component is ready.
 
 #### Confirm the Split
 
-Rebuild and inspect the output:
-
-```bash
-npm run build
-```
-
-You should now see a separate chunk file for `ProductsPage` in the build output, distinct from the main bundle. In the browser, open DevTools → Network, reload the app at the Dashboard, and confirm no request for the products chunk is made. Now click **Products** in the sidebar and confirm the chunk is requested at that moment, briefly showing the spinner before the page appears.
+With `npm run dev` still running, open DevTools → Network, clear the request log, and reload the app at the Dashboard. `ProductsPage.jsx` and `data/products.js` should no longer appear in the list. Now click **Products** in the sidebar and watch the Network tab: a new request for `ProductsPage.jsx` (and its own imports) appears at that exact moment, briefly showing the spinner before the page appears.
 
 > **Why lazy-load a route instead of a component?**
 > Route-based code splitting is the most common form of lazy loading in real applications, because a route is a natural boundary: a user viewing the Dashboard has no need for the Products page's code until they navigate to it. The same `lazy` and `Suspense` pattern can be applied to any component, for example a heavy modal or chart that only renders after a user interaction, but routes are the highest-value place to start.
@@ -1404,13 +1447,13 @@ Add an `onAddToCart` callback prop to `ProductCard`. When a "Add to Cart" button
 
 Add a test to `ProductList.test.jsx` that asserts the empty state: when the API returns an empty array, the product list renders no product cards (check that no elements with the class `product-card` are present).
 
-### Challenge 3: Memoize the Filtered Results Differently
+### Challenge 3: Add a Category Filter Alongside Search
 
-`filtered` in `ProductsPage` currently returns the entire `mockProducts` array by reference when `category === "All"`. Confirm with `console.log` that this array reference is stable across re-renders in that case. Then try adding a search-by-name text input alongside the category filter, and extend the `useMemo` dependency array so the result updates correctly for both filters together.
+Add a category dropdown back alongside the search input, so learners can filter by both name and category at once. Extend the `useMemo` dependency array so `filteredProducts` recomputes correctly when either value changes, and confirm with the Profiler that changing either filter still triggers exactly one recomputation, not two.
 
 ### Challenge 4: Profile a Larger Catalogue
 
-Increase the generated product count to 10,000 in `scripts/generate-products.js`, regenerate the data, and remove the `useMemo` on `filtered`. Record a Profiler session. At what number of items does the Profiler start reporting render times above 100ms on your machine? Re-add `useMemo` and compare.
+Increase the generated product count to 20,000 in `scripts/generate-products.js`, regenerate the data, and remove the `useMemo` from around the `.filter().map()` pipeline in `ProductsPage`. Record a Profiler session and click Add Random Item. At this scale, does the `ProductsPage` bar itself become large enough to be a second bottleneck alongside `ProductList`? Re-add `useMemo` and compare. At what item count does the filter and discount pipeline alone start costing more than a few milliseconds on your machine?
 
 ### Challenge 5: Lazy-Load a Component, Not Just a Route
 
@@ -1450,16 +1493,16 @@ afterEach(() => {
 **Using `useMemo` with a missing dependency**
 
 ```jsx
-// Wrong, if category changes, filtered is stale because category is not in the dep array
-const filtered = useMemo(
-  () => mockProducts.filter((p) => p.category === category),
+// Wrong, if search changes, filteredProducts is stale because search is not in the dep array
+const filteredProducts = useMemo(
+  () => mockProducts.filter((p) => p.name.toLowerCase().includes(search.toLowerCase())),
   [],
 );
 
 // Correct, include all values the computation depends on
-const filtered = useMemo(
-  () => mockProducts.filter((p) => p.category === category),
-  [category],
+const filteredProducts = useMemo(
+  () => mockProducts.filter((p) => p.name.toLowerCase().includes(search.toLowerCase())),
+  [search],
 );
 ```
 
@@ -1468,8 +1511,20 @@ const filtered = useMemo(
 ```jsx
 // Using useCallback alone has no effect on re-renders,
 // the child still re-renders because React.memo is not applied
-const handleChange = useCallback((v) => setCategory(v), []);
-<ProductFilterBar onChange={handleChange} />; // ProductFilterBar is not wrapped in memo
+const handleChange = useCallback((v) => setSearch(v), []);
+<ProductSearchBar onChange={handleChange} />; // ProductSearchBar is not wrapped in memo
+```
+
+**Optimising the computation the Profiler did not flag**
+
+```jsx
+// Wrong, assuming the filter is the bottleneck without profiling first
+const filteredProducts = useMemo(() => mockProducts.filter(...).map(...), [search]);
+// ProductList, unmemoized, is still re-rendering hundreds of cards on every
+// unrelated state change, which is where the actual time is going
+
+// Correct, profile first, then memoize the component the Profiler points to
+const ProductList = memo(function ProductList({ products }) { /* ... */ });
 ```
 
 **Applying `useMemo` to a cheap computation**
