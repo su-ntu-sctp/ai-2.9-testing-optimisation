@@ -127,13 +127,15 @@ export default defineConfig([
   {
     files: ["**/*.test.{js,jsx}"],
     languageOptions: {
-      globals: globals.vitest,
+      globals: { ...globals.vitest, ...globals.node },
     },
   },
 ]);
 ```
 
 The new block only applies to files matching `**/*.test.{js,jsx}`, so `describe`, `it`, `expect`, and `vi` are recognised in your test files without also becoming valid globals inside your components, where an undeclared identifier should still be caught as a real bug. The `globals` package is already a dependency from the scaffold, so no extra install is needed.
+
+`globals.vitest` only covers Vitest's own test API (`describe`, `it`, `expect`, `vi`, and similar). It does not include `global`, which is a Node.js runtime global, not a Vitest one. Later in this lesson, `ProductList.test.jsx` mocks `fetch` with `vi.spyOn(global, "fetch")`, so `globals.node` is merged in here as well to cover `global` and avoid a `'global' is not defined` `no-undef` error in that file.
 
 #### Add the Test Script
 
@@ -617,7 +619,7 @@ The CRM's `eslint.config.js` has the same gap you fixed in `testing-demo`: `glob
 {
   files: ["**/*.test.{js,jsx}"],
   languageOptions: {
-    globals: globals.vitest,
+    globals: { ...globals.vitest, ...globals.node },
   },
 },
 ```
